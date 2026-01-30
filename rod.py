@@ -1,0 +1,22 @@
+import pygame
+
+from config import WIDTH, HEIGHT
+
+
+class Rod:
+    def __init__(self):
+        self.sprites = [
+            pygame.transform.scale(pygame.image.load('images/rod1.png'), (WIDTH / 4, HEIGHT / 3)),
+            pygame.transform.scale(pygame.image.load('images/rod2.png'), (WIDTH / 4, HEIGHT / 3)),
+            pygame.transform.scale(pygame.image.load('images/rod3.png'), (WIDTH / 4, HEIGHT / 3))
+        ]
+        self.x = WIDTH // 2
+        self.speed = 20
+    
+    def draw(self, surface):
+        if self.x <= WIDTH / 3:
+            surface.blit(self.sprites[2], (self.x, HEIGHT / 1.75))
+        elif self.x <= WIDTH / 3 * 2:
+            surface.blit(self.sprites[1], (self.x - self.sprites[1].get_width() / 2, HEIGHT / 1.75))
+        else:
+            surface.blit(self.sprites[0], (self.x - self.sprites[0].get_width(), HEIGHT / 1.75))
