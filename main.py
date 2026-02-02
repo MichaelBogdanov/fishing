@@ -402,7 +402,7 @@ def main(user_data):
 
 if __name__ == "__main__":
     # Запуск меню авторизации
-    user_data = auth_menu("1", os.getenv('LOGIN'), os.getenv('PASSWORD'))
+    user_data = auth_menu()
     if user_data:
         # Запуск основной игры
         main(user_data)
