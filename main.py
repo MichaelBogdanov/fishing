@@ -70,17 +70,8 @@ def main(user_data):
     rod = Rod()
     
     # Поплавок
-    bobber_sprites = [
-        pygame.transform.scale(pygame.image.load('images/bobber1.png'), (100, 100)),
-        pygame.transform.scale(pygame.image.load('images/bobber2.png'), (100, 100))
-    ]
-    bobber_sprites_scaled = bobber_sprites.copy()
-    bobber_counter = 0
-    bobber = bobber_sprites[bobber_counter]
-    bobber_pos = [WIDTH / 3, HEIGHT / 3 * 2]
-    bobber_max_y = HEIGHT * 0.75 - HEIGHT / 3
-    bobber_speedup = 1
-    bobber_size = 100
+    from bobber import Bobber
+    bobber = Bobber(rod)
     # Всплески воды (рыба клюёт)
     splash = pygame.image.load('images/splash.png').convert_alpha()
     splash_size = [50, 20]
@@ -139,11 +130,7 @@ def main(user_data):
                             # Если колёсико крутят вниз
                             if event.button == 5 and not catch_status:
                                 # Подтягиваем поплавок
-                                percent -= 1
-                                percent = max(0, percent)
-                                bobber_pos[1] = HEIGHT * 0.75 - HEIGHT / 3 / 100 * percent
-                                bobber_size = 100 - percent * 0.5
-                                bobber_sprites_scaled = list(map(lambda x: pygame.transform.scale(x, (bobber_size, bobber_size)), bobber_sprites))
+                                bobber.pull_up()
                             # Если нажали ПКМ
                             if event.button == 2:
                                 # Если можно ловить рыбу
@@ -225,25 +212,12 @@ def main(user_data):
                 # Если удочку забросили и ловят рыбу
                 if fishing_status:
                     # Отрисовываем поплавок
-                    if abs(rod.x - (bobber_pos[0] + 50)) >= 300:
-                        bobber_pos[0] += rod.speed * (-1 + 2 * (rod.x > bobber_pos[0]))
-                    if bobber_pos[1] < bobber_max_y:
-                        bobber_speedup *= 1.05
-                        bobber_pos[1] += bobber_speedup
-                        bobber_pos[1] = min(bobber_pos[1], bobber_max_y)
-                    screen.blit(bobber_sprites_scaled[int(bobber_counter) % len(bobber_sprites)], bobber_pos)
-                    bobber_counter += 0.05
-
-                    # Отрисовываем леску
-                    pygame.draw.line(screen,
-                                    pygame.Color('white'),
-                                    (bobber_pos[0] + bobber_size * 0.5, bobber_pos[1] + bobber_size * 0.4 - bobber_size * 0.1 * (int(bobber_counter) % len(bobber_sprites))),
-                                    (rod.x, HEIGHT / 1.75),
-                                    2)
+                    bobber.update()
+                    bobber.draw(screen)
 
                     # Если поплавок там где клюёт
                     if splash_status:
-                        bobber_rect = pygame.rect.Rect(*bobber_pos, bobber_size, bobber_size)
+                        bobber_rect = pygame.rect.Rect(bobber.x, bobber.y, bobber.size, bobber.size)
                         splash_rect = pygame.rect.Rect(*splash_pos_now, *splash_size)
                         # Можно подсекать на ПКМ
                         if bobber_rect.colliderect(splash_rect):
@@ -283,13 +257,11 @@ def main(user_data):
                     pygame.draw.rect(screen, (60, 180, 75), (x, y + bar_height - progress_height + 1, 50, progress_height))
                 elif throwing_status:
                     throwing_status = False
-                    bobber_speedup = 1
-                    bobber_pos[0] = WIDTH * random.random()
-                    bobber_pos[1] = HEIGHT * 0.75 - HEIGHT / 3 / 100 * percent
+                    bobber.distance = percent
+                    bobber.speedup = 1
+                    bobber.x = rod.x
+                    bobber.y = -percent
                     fishing_status = True
-                    # Масштабирование поплавка в зависимости от дистанции
-                    bobber_size = 100 - percent * 0.5
-                    bobber_sprites_scaled = list(map(lambda x: pygame.transform.scale(x, (bobber_size, bobber_size)), bobber_sprites))
                 
                 # Мини-игра
                 if catch_status:
