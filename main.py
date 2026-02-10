@@ -190,8 +190,6 @@ def main(user_data):
                             splash_color = rarity['color']
                             # Выбираем рыбу
                             now_rarity = rarity
-                            with open('fish_history.txt', 'a') as file:
-                                file.write(f"[{__import__('datetime').datetime.now()}] {rarity['name']} (шанс {rarity['chance']}%)" + "\n")
                         else:
                             now_chance += rarity['chance']
                 if splash_status and not catch_status:
@@ -374,7 +372,7 @@ if __name__ == "__main__":
     if not os.getenv('PROLOG'):
         from intro import prolog
         prolog()
-        os.environ('PROLOG') = True
+        os.environ['PROLOG'] = 'True'
     
     # Запуск меню авторизации
     if (login := os.getenv('LOGIN')) and (password := os.getenv('PASSWORD')):
