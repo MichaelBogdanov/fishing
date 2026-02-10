@@ -18,9 +18,9 @@ if __name__ == "__main__":
     FPS = 60
     
     pygame.font.init()
-    font = pygame.font.Font("Comic Sans MS Pixel.ttf", 64)
-
-    message_frames = iter(send_message("Приветствую, игрок! Выйти из игры на ESC!", font))
+    from config import MYFONT
+    
+    message_frames = iter(send_message("Приветствую, игрок! Выйти из игры на ESC!", MYFONT))
 
     while True:
         clock.tick(FPS)

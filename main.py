@@ -27,7 +27,7 @@ def main(user_data):
     pygame.mixer.music.set_volume(0.5)
 
     # Загрузка параметров игры
-    from config import WIDTH, HEIGHT, FPS, MINIGAME_DT
+    from config import WIDTH, HEIGHT, FPS, MINIGAME_DT, MYFONT
     accumulator = 0.0
     clock = pygame.time.Clock()
     
@@ -91,9 +91,7 @@ def main(user_data):
     bait_positions = [WIDTH - x - 64 for x in range(64, 64 * bait_count + 1, 64)]
     # Очки
     pygame.font.init()
-    myfont = pygame.font.Font("ByteBounce.ttf", 64)
-    myfont2 = pygame.font.Font("Comic Sans MS Pixel.ttf", 64)
-    score_label = myfont.render(f"Score: {score}", 1, (255, 255, 255))
+    score_label = MYFONT.render(f"Score: {score}", 1, (255, 255, 255))
 
     try:
         # Игровой цикл
@@ -158,7 +156,7 @@ def main(user_data):
                                     message = None
                                     # Добавляем очки за рыбу
                                     score += now_rarity['score']
-                                    score_label = myfont.render(f"Score: {score}", 1, now_rarity['color'])
+                                    score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
                                     # Обновляем счет на сервере при изменении
                                     user_data['score'] = score
                                     update_server_score(user_data['username'], score)
@@ -279,7 +277,7 @@ def main(user_data):
                         # Выбор рыбы
                         index = fish_rarity.index(now_rarity)
                         catch_fish = random.choice(fish[index])
-                        message = send_message(catch_fish.name, myfont2, now_rarity['color'], 120)
+                        message = send_message(catch_fish.name, MYFONT, now_rarity['color'], 120)
                     # Анимация ловли
                     if catch_animation_status:
                         catch_animation_percent += 1
@@ -304,7 +302,7 @@ def main(user_data):
                             can_catch = False
                             # Добавляем очки за рыбу
                             score += now_rarity['score']
-                            score_label = myfont.render(f"Score: {score}", 1, now_rarity['color'])
+                            score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
                             # Обновляем счет на сервере при изменении
                             user_data['score'] = score
                             update_server_score(user_data['username'], score)
@@ -374,7 +372,10 @@ def main(user_data):
 
 if __name__ == "__main__":
     # Запуск меню авторизации
-    user_data = auth_menu()
+    if (login := os.getenv('LOGIN')) and (password := os.getenv('PASSWORD')):
+        user_data = auth_menu("1", login, password)
+    else:
+        user_data = auth_menu()
     if user_data:
         # Запуск основной игры
         main(user_data)
