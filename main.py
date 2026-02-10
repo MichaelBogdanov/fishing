@@ -27,12 +27,11 @@ def main(user_data):
     pygame.mixer.music.set_volume(0.5)
 
     # Загрузка параметров игры
-    from config import WIDTH, HEIGHT, FPS, MINIGAME_DT, MYFONT
+    from config import WIDTH, HEIGHT, SCREEN, FPS, MINIGAME_DT, MYFONT
     accumulator = 0.0
     clock = pygame.time.Clock()
     
-    # Создаём экран
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    # Изменяем подпись у окна
     pygame.display.set_caption('Рыбалка на Pygame')
     
     # Создание карты игры
@@ -115,7 +114,7 @@ def main(user_data):
             # Проверяем на уровне ли мы? Или на карте?
             if current_level != None:
                 # Закрашиваем экран
-                current_level.background.render(screen, (0, 0))
+                current_level.background.render(SCREEN, (0, 0))
                 
                 # Обработка игровых событий
                 for event in events:
@@ -137,8 +136,8 @@ def main(user_data):
                                     catch_status = True
                                     # Создаём игру
                                     difficult = fish_rarity.index(now_rarity)
-                                    fishing_bar = MinigameBar(screen, difficult)
-                                    game = Minigame(screen, fishing_bar, difficult)
+                                    fishing_bar = MinigameBar(SCREEN, difficult)
+                                    game = Minigame(SCREEN, fishing_bar, difficult)
                             if event.button == 1:
                                 if not catch_animation_status:
                                     if catch_status:
@@ -202,7 +201,7 @@ def main(user_data):
                     splash_size[1] = 20 + 60 * splash_percent
                     splash_pos_now[0] = splash_pos[0] - 150 // 2 * splash_percent
                     splash_pos_now[1] = splash_pos[1] - 60 // 2 * splash_percent
-                    screen.blit(pygame.transform.scale(splash, splash_size), splash_pos_now)
+                    SCREEN.blit(pygame.transform.scale(splash, splash_size), splash_pos_now)
                     splash_time -= 1
                     if splash_time == 0:
                         splash_status = False
@@ -211,7 +210,7 @@ def main(user_data):
                 if fishing_status:
                     # Отрисовываем поплавок
                     bobber.update()
-                    bobber.draw(screen)
+                    bobber.draw(SCREEN)
 
                     # Если поплавок там где клюёт
                     if splash_status:
@@ -224,14 +223,14 @@ def main(user_data):
                             can_catch = False
 
                 # Отрисовываем удочку
-                rod.draw(screen)
+                rod.draw(SCREEN)
                 
                 # Отрисовка интерфейса
                 # Рисуем приманку
                 for i in range(bait_now):
-                    screen.blit(bait, (bait_positions[i], 50))
+                    SCREEN.blit(bait, (bait_positions[i], 50))
                 # Рисуем очки
-                screen.blit(score_label, (50, 52))
+                SCREEN.blit(score_label, (50, 52))
                 
                 # Забрасывание удочки
                 if pressed_buttons[2]:
@@ -249,10 +248,10 @@ def main(user_data):
                         percent = max(0, percent)
                         percent = min(100, percent)
                     bar_height = 400
-                    x, y = 50, screen.get_height() // 2 - bar_height // 2
+                    x, y = 50, SCREEN.get_height() // 2 - bar_height // 2
                     progress_height = bar_height / 100 * percent
-                    pygame.draw.rect(screen, (255, 255, 255), (x, y, 50, bar_height))
-                    pygame.draw.rect(screen, (60, 180, 75), (x, y + bar_height - progress_height + 1, 50, progress_height))
+                    pygame.draw.rect(SCREEN, (255, 255, 255), (x, y, 50, bar_height))
+                    pygame.draw.rect(SCREEN, (60, 180, 75), (x, y + bar_height - progress_height + 1, 50, progress_height))
                 elif throwing_status:
                     throwing_status = False
                     bobber.distance = percent
@@ -289,7 +288,7 @@ def main(user_data):
                             image = pygame.transform.scale(catch_fish.image, catch_fish_size)
                             image_rect = image.get_rect()
                             image_rect.center = (WIDTH // 2, HEIGHT // 2)
-                        screen.blit(image, image_rect)
+                        SCREEN.blit(image, image_rect)
                         # Конец анимации
                         if catch_animation_percent == 120.00:
                             # Рыба добавлена в инвентарь
@@ -318,7 +317,7 @@ def main(user_data):
                         fishing_bar.draw()
             else:
                 # Мы на карте
-                game_map.render(screen, (0, 0))
+                game_map.render(SCREEN, (0, 0))
                 
                 # Открытие новых уровней
                 for i in range(len(levels)):
@@ -331,7 +330,7 @@ def main(user_data):
                         levels[i].part_of_raft = True
                     # Рисуем кружочек с уровнем
                     color = (255, 255, 255) if levels[i].open else (150, 150, 150)
-                    levels[i].point = pygame.draw.circle(screen, color, levels[i].pos, 20, 0)
+                    levels[i].point = pygame.draw.circle(SCREEN, color, levels[i].pos, 20, 0)
                 
                 # Обработка кликов на метки уровней
                 for event in events:
@@ -345,14 +344,14 @@ def main(user_data):
             # Вывод сообщений
             try:
                 message_frame = next(message)
-                screen.blit(message_frame, (screen.width // 2 - message_frame.get_width() // 2, screen.height * 0.8))
+                SCREEN.blit(message_frame, (SCREEN.width // 2 - message_frame.get_width() // 2, SCREEN.height * 0.8))
             except:
                 pass
             
             # Обновление экрана
-            pixelation(screen, 3)
-            scanlines(screen)
-            glitch(screen.get_height(), screen.get_width(), screen, "medium")
+            pixelation(SCREEN, 3)
+            scanlines(SCREEN)
+            glitch(SCREEN.get_height(), SCREEN.get_width(), SCREEN, "medium")
             pygame.display.flip()
             
             # Проверка звуков
@@ -371,6 +370,12 @@ def main(user_data):
 
 
 if __name__ == "__main__":
+    # Проверяем первый ли раз запускают игру
+    if not os.getenv('PROLOG'):
+        from intro import prolog
+        prolog()
+        os.environ('PROLOG') = True
+    
     # Запуск меню авторизации
     if (login := os.getenv('LOGIN')) and (password := os.getenv('PASSWORD')):
         user_data = auth_menu("1", login, password)

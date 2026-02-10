@@ -1,7 +1,11 @@
 import pygame
 
 
+pygame.init()
+pygame.font.init()
+
 WIDTH, HEIGHT = 1920, 1080
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 MINIGAME_FPS = 240
 MINIGAME_DT = 1 / MINIGAME_FPS
