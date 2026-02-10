@@ -114,7 +114,7 @@ class MinigameBar:
         self.value_percent = 30
 
     def success(self, value=30):
-        self.value_percent += value - self.difficult
+        self.value_percent += value - (10 + self.difficult * 2)
 
     def update(self, dt):
         self.value_percent -= 10 * dt
