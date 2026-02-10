@@ -372,7 +372,6 @@ if __name__ == "__main__":
     if not os.getenv('PROLOG'):
         from intro import prolog
         prolog()
-        os.environ['PROLOG'] = 'True'
     
     # Запуск меню авторизации
     if (login := os.getenv('LOGIN')) and (password := os.getenv('PASSWORD')):
