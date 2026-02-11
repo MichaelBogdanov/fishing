@@ -3,7 +3,7 @@ import pygame
 
 from config import WIDTH, HEIGHT, SCREEN, FPS, MYFONT
 from messages import send_message
-from graphics import pixelation
+from graphics import pixelation, scanlines, glitch
 
 
 story = [
@@ -59,6 +59,8 @@ def prolog():
             except:
                 return
 
+        scanlines(SCREEN)
+        glitch(SCREEN.get_height(), SCREEN.get_width(), SCREEN, "medium")
         pygame.display.flip()
 
 
