@@ -42,7 +42,7 @@ class Bobber:
             
     def draw(self, screen):
         # Отрисовываем поплавок
-        screen.blit(self.scaled_sprites[self.counter], (self.x, self.y))
+        screen.blit(self.scaled_sprites[int(self.counter)], (self.x, self.y))
         
         # Отрисовываем леску
         pygame.draw.line(
@@ -54,5 +54,5 @@ class Bobber:
         )
         
         # Увеличиваем счётчик
-        self.counter += 1 // FPS
+        self.counter += 1 / FPS
         self.counter %= len(self.scaled_sprites)
