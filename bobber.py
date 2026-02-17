@@ -7,8 +7,8 @@ class Bobber:
         self.rod = rod
         
         self.sprites = [
-            pygame.transform.scale(pygame.image.load('images/bobber1.png'), (100, 100)),
-            pygame.transform.scale(pygame.image.load('images/bobber2.png'), (100, 100))
+            pygame.transform.scale(pygame.image.load('images/bobber1.png').convert_alpha(), (100, 100)),
+            pygame.transform.scale(pygame.image.load('images/bobber2.png').convert_alpha(), (100, 100))
         ]
         self.scaled_sprites = self.sprites.copy()
         

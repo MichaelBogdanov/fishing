@@ -22,9 +22,9 @@ class Minigame:
         self.score = 0
 
         # --- МОДЕЛЬ СЛОЖНОСТИ (основана на реакции человека) ---
-        self.v0 = 300.00 + difficult * 50.00
-        self.v_max = 600.00 + difficult * 50.00
-        self.k_v = 0.30 + difficult * 0.05
+        self.v0 = 300.00 + difficult * 35.00
+        self.v_max = 600.00 + difficult * 35.00
+        self.k_v = 0.30 + difficult * 0.035
 
         self.T0 = 0.30 - difficult * 0.03
         self.T_min = 0.03 - difficult * 0.002
@@ -114,7 +114,7 @@ class MinigameBar:
         self.value_percent = 30
 
     def success(self, value=30):
-        self.value_percent += value - (10 + self.difficult * 2)
+        self.value_percent += value - (10 + self.difficult)
 
     def update(self, dt):
         self.value_percent -= 10 * dt

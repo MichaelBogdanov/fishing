@@ -6,9 +6,9 @@ from config import WIDTH, HEIGHT
 class Rod:
     def __init__(self):
         self.sprites = [
-            pygame.transform.scale(pygame.image.load('images/rod1.png'), (WIDTH / 4, HEIGHT / 3)),
-            pygame.transform.scale(pygame.image.load('images/rod2.png'), (WIDTH / 4, HEIGHT / 3)),
-            pygame.transform.scale(pygame.image.load('images/rod3.png'), (WIDTH / 4, HEIGHT / 3))
+            pygame.transform.scale(pygame.image.load('images/rod1.png').convert_alpha(), (WIDTH / 4, HEIGHT / 3)),
+            pygame.transform.scale(pygame.image.load('images/rod2.png').convert_alpha(), (WIDTH / 4, HEIGHT / 3)),
+            pygame.transform.scale(pygame.image.load('images/rod3.png').convert_alpha(), (WIDTH / 4, HEIGHT / 3))
         ]
         self.x = WIDTH // 2
         self.speed = 20

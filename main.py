@@ -11,6 +11,7 @@ os.chdir(os.path.dirname(__file__))
 # Загрузка переменных окружения из .env файла
 load_dotenv('.env')
 
+from config import SCREEN, WIDTH, HEIGHT, FPS, MINIGAME_DT, MYFONT
 from graphics import *
 from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
@@ -27,7 +28,6 @@ def main(user_data):
     pygame.mixer.music.set_volume(0.5)
 
     # Загрузка параметров игры
-    from config import WIDTH, HEIGHT, SCREEN, FPS, MINIGAME_DT, MYFONT
     accumulator = 0.0
     clock = pygame.time.Clock()
     
@@ -69,6 +69,7 @@ def main(user_data):
     # Поплавок
     from bobber import Bobber
     bobber = Bobber(rod)
+    
     # Всплески воды (рыба клюёт)
     splash = pygame.image.load('images/splash.png').convert_alpha()
     splash_size = [50, 20]
@@ -81,7 +82,7 @@ def main(user_data):
 
     # Интерфейс
     # Приманка (очки здоровья)
-    bait = pygame.image.load('images/worm.png')
+    bait = pygame.image.load('images/worm.png').convert_alpha()
     bait = pygame.transform.scale(bait, (64, 64))
     bait_count = 5
     bait_now = bait_count

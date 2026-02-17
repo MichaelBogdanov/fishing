@@ -19,7 +19,7 @@ class Level:
         # Загружаем все изображения слоями и сразу блим их на background.
         # Сортируем список, чтобы порядок был детерминирован (если нужно — поменяйте по вашему).
         try:
-            filenames = sorted(os.listdir(path))
+            filenames = sorted(os.listdir(path)[:-1])
         except FileNotFoundError:
             filenames = []
 
