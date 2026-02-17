@@ -46,10 +46,10 @@ class Bobber:
         
         # Отрисовываем леску
         pygame.draw.line(
-            screen, 
-            (255, 255, 255), 
+            screen,
+            (255, 255, 255),
             (self.x + self.size * 0.5, self.y + self.size * 0.4 - self.size * 0.1 * int(self.counter)),
-            (self.rod.x, HEIGHT / 1.75), 
+            (self.rod.x, self.rod.y),
             2
         )
         

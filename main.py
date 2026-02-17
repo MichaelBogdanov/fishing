@@ -16,7 +16,7 @@ from graphics import *
 from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
-from fish import fish, fish_rarity
+from Fish import fish, fish_rarity
 
 
 # Основная функция игры
@@ -63,11 +63,11 @@ def main(user_data):
     catch_animation_status = False
     
     # Загрузка удочки
-    from rod import Rod
+    from Rod import Rod
     rod = Rod()
     
     # Поплавок
-    from bobber import Bobber
+    from Bobber import Bobber
     bobber = Bobber(rod)
     
     # Всплески воды (рыба клюёт)

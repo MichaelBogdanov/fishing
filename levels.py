@@ -5,13 +5,13 @@ from config import WIDTH, HEIGHT, SCREEN
 
 # Уровни
 class Level:
-    def __init__(self, number: int, name: str, pos: list[int], quota: int, path: str, open: bool = False):
+    def __init__(self, number: int, name: str, pos: list[int], quota: int, background_path: str, open: bool = False, pier_path: str = 'images/pier.png'):
         self.number = number
         self.name = name
         self.pos = pos
         self.quota = quota
         self.part_of_raft = False
-        self.sprites_path = path
+        self.sprites_path = background_path
         self.open = open
 
         # Подготовим фон один раз (precompose). Используем Surface с альфой на всякий случай.
@@ -19,7 +19,7 @@ class Level:
         # Загружаем все изображения слоями и сразу блим их на background.
         # Сортируем список, чтобы порядок был детерминирован (если нужно — поменяйте по вашему).
         try:
-            filenames = sorted(os.listdir(path)[:-1])
+            filenames = sorted(os.listdir(background_path))
         except FileNotFoundError:
             filenames = []
 
@@ -42,6 +42,20 @@ class Level:
                 sprite = pygame.transform.scale(sprite, (WIDTH, HEIGHT))
             # Блим на фон
             self.background.blit(sprite, (0, 0))
+        
+        pier = pygame.image.load(pier_path)
+        # Сохраняем альфу, если она есть
+        if pier.get_alpha() is not None:
+            pier = pier.convert_alpha()
+        else:
+            pier = pier.convert()
+        # Масштабируем один раз к размеру экрана
+        pier = pygame.transform.scale(pier, (WIDTH * (pier.get_width() / 320), HEIGHT * (pier.get_height() / 180)))
+        # Блим на фон
+        pier_rect = pier.get_rect()
+        pier_rect.centerx = WIDTH // 2
+        pier_rect.y = HEIGHT - pier.get_height()
+        self.background.blit(pier, (pier_rect.x, pier_rect.y))
 
     def update(self):
         ...

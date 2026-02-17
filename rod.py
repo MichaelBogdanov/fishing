@@ -11,12 +11,13 @@ class Rod:
             pygame.transform.scale(pygame.image.load('images/rod3.png').convert_alpha(), (WIDTH / 4, HEIGHT / 3))
         ]
         self.x = WIDTH // 2
+        self.y = HEIGHT - max(map(lambda x: x.get_height(), self.sprites)) - 50
         self.speed = 20
     
     def draw(self, surface):
         if self.x <= WIDTH / 3:
-            surface.blit(self.sprites[2], (self.x, HEIGHT / 1.75))
+            surface.blit(self.sprites[2], (self.x, self.y))
         elif self.x <= WIDTH / 3 * 2:
-            surface.blit(self.sprites[1], (self.x - self.sprites[1].get_width() / 2, HEIGHT / 1.75))
+            surface.blit(self.sprites[1], (self.x - self.sprites[1].get_width() / 2, self.y))
         else:
-            surface.blit(self.sprites[0], (self.x - self.sprites[0].get_width(), HEIGHT / 1.75))
+            surface.blit(self.sprites[0], (self.x - self.sprites[0].get_width(), self.y))
