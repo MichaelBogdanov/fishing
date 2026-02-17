@@ -1,4 +1,5 @@
 import sys
+import time
 import pygame
 from math import ceil
 from random import randint
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     
     hooking = Hooking()
     message = None
+    delay = FPS
     
     while True:
         clock.tick(FPS)
@@ -69,18 +71,26 @@ if __name__ == "__main__":
                     pygame.quit()
                     sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if event.button == 1 and not delay:
                     message = send_message(str(hooking.click()), MYFONT, (255, 255, 255))
                     hooking = Hooking()
+                    delay = FPS + randint(0, FPS)
         
-        if result := hooking.update() == False:
-            hooking = Hooking()
-        hooking.draw()
+        if not delay:
+            if result := hooking.update() == False:
+                hooking = Hooking()
+                delay = FPS + randint(0, FPS)
+            hooking.draw()
         
         try:
             message_frame = next(message)
             SCREEN.blit(message_frame, (SCREEN.width // 2 - message_frame.get_width() // 2, SCREEN.height * 0.8))
         except:
             pass
+        
+        if delay > 0:
+            delay -= 1
+        
+        print(delay)
         
         pygame.display.flip()
