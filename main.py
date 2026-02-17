@@ -40,8 +40,6 @@ def main(user_data):
     
     # Загрузка уровней
     from levels import levels, current_level
-    for level in levels:
-        gif_pygame.transform.scale(level.background, (WIDTH, HEIGHT))
     
     # Загрузка музыки
     from music import levels_music, playlist
@@ -114,7 +112,8 @@ def main(user_data):
             # Проверяем на уровне ли мы? Или на карте?
             if current_level != None:
                 # Закрашиваем экран
-                current_level.background.render(SCREEN, (0, 0))
+                current_level.update()
+                current_level.draw()
                 
                 # Обработка игровых событий
                 for event in events:

@@ -91,6 +91,4 @@ if __name__ == "__main__":
         if delay > 0:
             delay -= 1
         
-        print(delay)
-        
         pygame.display.flip()
