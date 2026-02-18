@@ -17,7 +17,7 @@ from graphics import *
 from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
-from Fish import fish, fish_rarity
+from fish import fish, fish_rarity
 
 
 # Основная функция игры
@@ -64,11 +64,11 @@ def main(user_data):
     catch_animation_status = False
     
     # Загрузка удочки
-    from Rod import Rod
-    rod = Rod()
+    from rod import Rod
+    rod = Rod('images/rod.png', 20, 1.5)
     
     # Поплавок
-    from Bobber import Bobber
+    from bobber import Bobber
     bobber = Bobber(rod)
     
     # Всплески воды (рыба клюёт)
@@ -171,7 +171,7 @@ def main(user_data):
                     # Вычисляем отклонение позиции мышки от центра экрана по X
                     yaw = mouse_x - WIDTH / 2
                     # Задаём скорость движения в зависимости от отклонение
-                    rod.x += rod.speed * yaw / (WIDTH / 2)
+                    rod.update(yaw)
 
                 # Всплески воды (рыба клюёт)
                 if not splash_status and random.randint(0, 100 * FPS) <= 100: # FIX THIS LATER
@@ -188,7 +188,7 @@ def main(user_data):
                     for rarity in fish_rarity:
                         if number <= now_chance + rarity['chance']:
                             # replace_color(splash, splash_color, rarity['color'])
-                            splash_color = rarity['color']
+                            # splash_color = rarity['color']
                             # Выбираем рыбу
                             now_rarity = rarity
                         else:
@@ -255,7 +255,7 @@ def main(user_data):
                     throwing_status = False
                     bobber.distance = percent
                     bobber.speedup = 1
-                    bobber.x = rod.x
+                    bobber.x = rod.rect.centerx
                     
                     ...
                     

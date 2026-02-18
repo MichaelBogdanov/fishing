@@ -51,7 +51,7 @@ class Bobber:
             screen,
             (255, 255, 255),
             (self.x + self.size * 0.5, self.y + self.size * 0.4 - self.size * 0.1 * int(self.counter)),
-            (self.rod.x, self.rod.y),
+            (self.rod.rect.centerx - (self.rod.angle / 50 * self.rod.rect.width / 2), self.rod.rect.y + self.rod.diff_y / 4),
             2
         )
         
