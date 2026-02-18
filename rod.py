@@ -13,6 +13,8 @@ class Rod:
         self.x = WIDTH // 2
         self.y = HEIGHT - max(map(lambda x: x.get_height(), self.sprites)) - 50
         self.speed = 20
+        
+        self.length = 1.5
     
     def draw(self, surface):
         if self.x <= WIDTH / 3:

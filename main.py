@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import random
 
 import pygame
@@ -71,14 +72,14 @@ def main(user_data):
     bobber = Bobber(rod)
     
     # Всплески воды (рыба клюёт)
-    splash = pygame.image.load('images/splash.png').convert_alpha()
-    splash_size = [50, 20]
-    splash_percent = 0
-    splash_pos = [WIDTH // 3, HEIGHT // 2]
-    splash_pos_now = splash_pos[::]     # Текущая позиция, с учётой анимации
+    # splash = pygame.image.load('images/splash.png').convert_alpha()
+    # splash_size = [50, 20]
+    # splash_percent = 0
+    # splash_pos = [WIDTH // 3, HEIGHT // 2]
+    # splash_pos_now = splash_pos[::]     # Текущая позиция, с учётой анимации
     splash_status = False               # Статус - есть ли всплески
-    splash_time = 0                     # Время пока всплеск активен
-    splash_color = (0, 0, 0)
+    # splash_time = 0                     # Время пока всплеск активен
+    # splash_color = (0, 0, 0)
 
     # Интерфейс
     # Приманка (очки здоровья)
@@ -173,36 +174,36 @@ def main(user_data):
                     rod.x += rod.speed * yaw / (WIDTH / 2)
 
                 # Всплески воды (рыба клюёт)
-                if not splash_status and random.randint(0, 100 * FPS) <= 100:
+                if not splash_status and random.randint(0, 100 * FPS) <= 100: # FIX THIS LATER
                     splash_status = True
                     # Генерируем случайную позицию поклёва
-                    splash_pos = [
-                        random.randint(0, WIDTH - 200),
-                        HEIGHT * 0.75 - HEIGHT / 3 / 100 * random.randint(0, 100)
-                    ]
-                    splash_time = FPS * 5
+                    # splash_pos = [
+                    #     random.randint(0, WIDTH - 200),
+                    #     HEIGHT * 0.75 - HEIGHT / 3 / 100 * random.randint(0, 100)
+                    # ]
+                    # splash_time = FPS * 5
                     # Генерируем редкость рыбы [0.001; 100.000]
                     number = random.randint(1, 100_000) / 1000
                     now_chance = 0
                     for rarity in fish_rarity:
                         if number <= now_chance + rarity['chance']:
-                            replace_color(splash, splash_color, rarity['color'])
+                            # replace_color(splash, splash_color, rarity['color'])
                             splash_color = rarity['color']
                             # Выбираем рыбу
                             now_rarity = rarity
                         else:
                             now_chance += rarity['chance']
-                if splash_status and not catch_status:
-                    splash_percent += 0.033
-                    splash_percent %= 1
-                    splash_size[0] = 50 + 150 * splash_percent
-                    splash_size[1] = 20 + 60 * splash_percent
-                    splash_pos_now[0] = splash_pos[0] - 150 // 2 * splash_percent
-                    splash_pos_now[1] = splash_pos[1] - 60 // 2 * splash_percent
-                    SCREEN.blit(pygame.transform.scale(splash, splash_size), splash_pos_now)
-                    splash_time -= 1
-                    if splash_time == 0:
-                        splash_status = False
+                # if splash_status and not catch_status:
+                #     splash_percent += 0.033
+                #     splash_percent %= 1
+                #     splash_size[0] = 50 + 150 * splash_percent
+                #     splash_size[1] = 20 + 60 * splash_percent
+                #     splash_pos_now[0] = splash_pos[0] - 150 // 2 * splash_percent
+                #     splash_pos_now[1] = splash_pos[1] - 60 // 2 * splash_percent
+                #     SCREEN.blit(pygame.transform.scale(splash, splash_size), splash_pos_now)
+                #     splash_time -= 1
+                #     if splash_time == 0:
+                #         splash_status = False
 
                 # Если удочку забросили и ловят рыбу
                 if fishing_status:
@@ -210,15 +211,15 @@ def main(user_data):
                     bobber.update()
                     bobber.draw(SCREEN)
 
-                    # Если поплавок там где клюёт
-                    if splash_status:
-                        bobber_rect = pygame.rect.Rect(bobber.x, bobber.y, bobber.size, bobber.size)
-                        splash_rect = pygame.rect.Rect(*splash_pos_now, *splash_size)
-                        # Можно подсекать на ПКМ
-                        if bobber_rect.colliderect(splash_rect):
-                            can_catch = True
-                        else:
-                            can_catch = False
+                    # # Если поплавок там где клюёт
+                    # if splash_status:
+                    #     bobber_rect = pygame.rect.Rect(bobber.x, bobber.y, bobber.size, bobber.size)
+                    #     splash_rect = pygame.rect.Rect(*splash_pos_now, *splash_size)
+                    #     # Можно подсекать на ПКМ
+                    #     if bobber_rect.colliderect(splash_rect):
+                    #         can_catch = True
+                    #     else:
+                    #         can_catch = False
 
                 # Отрисовываем удочку
                 rod.draw(SCREEN)
@@ -255,7 +256,9 @@ def main(user_data):
                     bobber.distance = percent
                     bobber.speedup = 1
                     bobber.x = rod.x
-                    bobber.y = -percent
+                    
+                    ...
+                    
                     fishing_status = True
                 
                 # Мини-игра
@@ -346,8 +349,16 @@ def main(user_data):
             except:
                 pass
             
+            from physics import get_distance
+            f = 13
+            for i in range(WIDTH):
+                distance = max(1, get_distance(f, rod.length, bobber.weight))
+                bobber.y = 520 + ((1.7 * 500 / distance)) + 100 * (abs((WIDTH / 2) - i) / 520)
+                pygame.draw.rect(SCREEN, (255, 255, 255), pygame.Rect(i, bobber.y, 2, 2), border_radius=1)
+            
             # Обновление экрана
             pixelation(SCREEN, 3)
+            physics_interface(SCREEN)
             scanlines(SCREEN)
             glitch(SCREEN.get_height(), SCREEN.get_width(), SCREEN, "medium")
             pygame.display.flip()

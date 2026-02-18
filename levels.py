@@ -50,7 +50,7 @@ class Level:
         else:
             pier = pier.convert()
         # Масштабируем один раз к размеру экрана
-        pier = pygame.transform.scale(pier, (WIDTH * (pier.get_width() / 320), HEIGHT * (pier.get_height() / 180)))
+        pier = pygame.transform.scale(pier, (WIDTH * (pier.get_width() / 480), HEIGHT * (pier.get_height() / 180)))
         # Блим на фон
         pier_rect = pier.get_rect()
         pier_rect.centerx = WIDTH // 2

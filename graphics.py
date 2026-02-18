@@ -37,3 +37,8 @@ def glitch(height, width, glitch_surface, intensity):
         slice_area = pygame.Rect(0, y_start, width, slice_height)
         slice_copy = glitch_surface.subsurface(slice_area).copy()
         glitch_surface.blit(slice_copy, (offset, y_start))
+
+# Вспомогательные линии для физики
+def physics_interface(screen):
+    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height()), (0, 0), 5)
+    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height()), (screen.get_width(), 0), 5)

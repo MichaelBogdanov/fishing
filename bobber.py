@@ -12,31 +12,33 @@ class Bobber:
         ]
         self.scaled_sprites = self.sprites.copy()
         
-        self.max_y = HEIGHT * 0.75 - HEIGHT / 3
+        self.max_y = HEIGHT * 0.75 - HEIGHT / 2.5
         self.range = HEIGHT / 3
-        self.distance = 100
         self.x = WIDTH / 2
-        self.y = self.max_y
+        self.y = 0
                 
         self.speedup = 1
-        self.size = 100 - self.distance * 0.5
+        self.size = 25
         self.counter = 0
+        
+        self.weight = 8 * 10 ** -3
     
     def pull_up(self,):
-        self.distance = max(0, self.distance - self.range / (self.range / self.rod.speed * 10))
-        self.y = HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance
+        # self.distance = max(0, self.distance - self.range / (self.range / self.rod.speed * 10))
+        # self.y = HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance
+        ...
     
     def update(self):
         # Подтягивает если закинули слишком далеко
-        if abs(self.rod.x - (self.x + 50)) >= 300:
-            self.x += self.rod.speed * (-1 + 2 * (self.rod.x > self.x))
-        # Поплавок падает вниз
-        if self.y < HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance:
-            self.speedup *= 1.05
-            self.y += self.speedup
-            self.y = min(self.y, HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance)
+        # if abs(self.rod.x - (self.x + 50)) >= 300:
+        #     self.x += self.rod.speed * (-1 + 2 * (self.rod.x > self.x))
+        # # Поплавок падает вниз
+        # if self.y < HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance:
+        #     self.speedup *= 1.05
+        #     self.y += self.speedup
+        #     self.y = min(self.y, HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance)
         # Меняем размер в зависимости от дистанции
-        self.size = 100 - self.distance * 0.5
+        # self.size = 100 - self.distance * 2.5
         # Скалируем спрайты
         self.scaled_sprites = list(map(lambda x: pygame.transform.scale(x, (self.size, self.size)), self.sprites))
             
