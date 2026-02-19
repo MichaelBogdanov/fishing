@@ -40,5 +40,5 @@ def glitch(height, width, glitch_surface, intensity):
 
 # Вспомогательные линии для физики
 def physics_interface(screen):
-    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height()), (0, 0), 5)
-    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height()), (screen.get_width(), 0), 5)
+    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height() + 50), (0, 200), 5)
+    pygame.draw.line(screen, (255, 255, 255), (screen.get_width() // 2, screen.get_height() + 50), (screen.get_width(), 200), 5)

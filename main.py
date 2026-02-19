@@ -357,7 +357,7 @@ def main(user_data):
                 pygame.draw.rect(SCREEN, (255, 255, 255), pygame.Rect(i, bobber.y, 2, 2), border_radius=1)
             
             # Обновление экрана
-            pixelation(SCREEN, 3)
+            # pixelation(SCREEN, 3)
             physics_interface(SCREEN)
             scanlines(SCREEN)
             glitch(SCREEN.get_height(), SCREEN.get_width(), SCREEN, "medium")
