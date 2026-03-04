@@ -18,7 +18,7 @@ class Bobber:
         self.y = 0
                 
         self.speedup = 1
-        self.size = 25
+        self.size = 10
         self.counter = 0
         
         self.weight = 8 * 10 ** -3

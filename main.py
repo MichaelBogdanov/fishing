@@ -18,6 +18,7 @@ from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
 from fish import fish, fish_rarity
+from physics import get_distance
 
 
 # Основная функция игры
@@ -251,13 +252,17 @@ def main(user_data):
                     progress_height = bar_height / 100 * percent
                     pygame.draw.rect(SCREEN, (255, 255, 255), (x, y, 50, bar_height))
                     pygame.draw.rect(SCREEN, (60, 180, 75), (x, y + bar_height - progress_height + 1, 50, progress_height))
+                # Бросок
                 elif throwing_status:
                     throwing_status = False
-                    bobber.distance = percent
-                    bobber.speedup = 1
-                    bobber.x = rod.rect.centerx
                     
-                    ...
+                    x0 = WIDTH / 2
+                    y0 = HEIGHT - 150
+                    a = WIDTH / (2 * (2 - percent / 100))
+                    b = HEIGHT / (3 * (2 - percent / 100))
+                    bobber.x = x0 + a * math.cos(math.radians(rod.angle + 90))
+                    bobber.y = y0 + b * math.sin(math.radians(rod.angle - 90))
+                    bobber.size = 30 - 15 * (percent / 100) + 10 * (abs(rod.angle) / 45)
                     
                     fishing_status = True
                 
@@ -349,16 +354,18 @@ def main(user_data):
             except:
                 pass
             
-            from physics import get_distance
-            f = 13
-            for i in range(WIDTH):
-                distance = max(1, get_distance(f, rod.length, bobber.weight))
-                bobber.y = 520 + ((1.7 * 500 / distance)) + 100 * (abs((WIDTH / 2) - i) / 520)
-                pygame.draw.rect(SCREEN, (255, 255, 255), pygame.Rect(i, bobber.y, 2, 2), border_radius=1)
-            
+            # x0 = WIDTH / 2
+            # y0 = HEIGHT - 150
+            # a = WIDTH / 2
+            # b = HEIGHT / 3
+            # for angle in range(-180, 0, 1):
+            #     x = x0 + a * math.cos(math.radians(angle))
+            #     y = y0 + b * math.sin(math.radians(angle))
+            #     pygame.draw.rect(SCREEN, (255, 255, 255), (x, y, 2, 2), 2)
+
             # Обновление экрана
             # pixelation(SCREEN, 3)
-            physics_interface(SCREEN)
+            # physics_interface(SCREEN)
             scanlines(SCREEN)
             glitch(SCREEN.get_height(), SCREEN.get_width(), SCREEN, "medium")
             pygame.display.flip()
