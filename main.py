@@ -18,7 +18,7 @@ from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
 from fish import fish, fish_rarity
-from physics import get_distance
+from hooking import Hooking
 
 
 # Основная функция игры
@@ -32,6 +32,7 @@ def main(user_data):
     # Загрузка параметров игры
     accumulator = 0.0
     clock = pygame.time.Clock()
+    fps_counter = 0
     
     # Изменяем подпись у окна
     pygame.display.set_caption('Рыбалка на Pygame')
@@ -57,6 +58,9 @@ def main(user_data):
     throwing_status = False
     # Рыбалка
     fishing_status = False
+    # Подсечка
+    hooking_status = False
+    hooking = Hooking()
     # Можно ли поймать
     can_catch = False
     # Ловля
@@ -71,16 +75,6 @@ def main(user_data):
     # Поплавок
     from bobber import Bobber
     bobber = Bobber(rod)
-    
-    # Всплески воды (рыба клюёт)
-    # splash = pygame.image.load('images/splash.png').convert_alpha()
-    # splash_size = [50, 20]
-    # splash_percent = 0
-    # splash_pos = [WIDTH // 3, HEIGHT // 2]
-    # splash_pos_now = splash_pos[::]     # Текущая позиция, с учётой анимации
-    splash_status = False               # Статус - есть ли всплески
-    # splash_time = 0                     # Время пока всплеск активен
-    # splash_color = (0, 0, 0)
 
     # Интерфейс
     # Приманка (очки здоровья)
@@ -100,6 +94,7 @@ def main(user_data):
             frame_dt = clock.tick(FPS) / 1000
             frame_dt = min(frame_dt, 0.05)
             accumulator += frame_dt
+            fps_counter += 1
             
             # Собираем события за кадр
             events = pygame.event.get()
@@ -121,52 +116,49 @@ def main(user_data):
                 # Обработка игровых событий
                 for event in events:
                     match event.type:
-                        # Нажатие клавиш мыши
                         case pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE:
                                 current_level = None
+                        # Нажатие клавиш мыши
                         case pygame.MOUSEBUTTONDOWN:
-                            # Если колёсико крутят вниз
-                            if event.button == 5 and not catch_status:
-                                # Подтягиваем поплавок
-                                bobber.pull_up()
-                            # Если нажали ПКМ
-                            if event.button == 2:
-                                # Если можно ловить рыбу
-                                if can_catch and not catch_status:
+                            # Если нажали ЛКМ
+                            if event.button == 1:
+                                # Подсечка рыбы
+                                if hooking_status:
+                                    _ = hooking.click()
+                                    hooking_status = False
                                     # Начинаем мини-игру
                                     catch_status = True
                                     # Создаём игру
                                     difficult = fish_rarity.index(now_rarity)
                                     fishing_bar = MinigameBar(SCREEN, difficult)
                                     game = Minigame(SCREEN, fishing_bar, difficult)
-                            if event.button == 1:
-                                if not catch_animation_status:
-                                    if catch_status:
+                                # Мини-игра
+                                if catch_status:
+                                    # Промах в мини-игре
+                                    if not catch_animation_status:
                                         bait_now -= not game.click()
-                                        pass
-                                else:
-                                    # Рыба добавлена в инвентарь
-                                    del fishing_bar
-                                    del game
-                                    catch_status = False
-                                    splash_status = False
-                                    fishing_status = False
-                                    throwing_status = False
-                                    can_catch = False
-                                    message = None
-                                    # Добавляем очки за рыбу
-                                    score += now_rarity['score']
-                                    score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
-                                    # Обновляем счет на сервере при изменении
-                                    user_data['score'] = score
-                                    update_server_score(user_data['username'], score)
-                                    catch_animation_status = False
+                                    # Победа в мини-игре
+                                    else:
+                                        # Рыба добавлена в инвентарь
+                                        catch_status = False
+                                        fishing_status = False
+                                        throwing_status = False
+                                        can_catch = False
+                                        message = None
+                                        # Добавляем очки за рыбу
+                                        score += now_rarity['score']
+                                        score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
+                                        # Обновляем счет на сервере при изменении
+                                        user_data['score'] = score
+                                        update_server_score(user_data['username'], score)
+                                        catch_animation_status = False
+
                 # Обработка мышки
                 if not catch_status:
                     pressed_buttons = pygame.mouse.get_pressed()
                 # Управление удочкой с помощью мышки
-                if pressed_buttons[0]:
+                if pressed_buttons[0] and not hooking_status:
                     # Двигаем удочку
                     mouse_x = pygame.mouse.get_pos()[0]
                     # Вычисляем отклонение позиции мышки от центра экрана по X
@@ -174,53 +166,27 @@ def main(user_data):
                     # Задаём скорость движения в зависимости от отклонение
                     rod.update(yaw)
 
-                # Всплески воды (рыба клюёт)
-                if not splash_status and random.randint(0, 100 * FPS) <= 100: # FIX THIS LATER
-                    splash_status = True
-                    # Генерируем случайную позицию поклёва
-                    # splash_pos = [
-                    #     random.randint(0, WIDTH - 200),
-                    #     HEIGHT * 0.75 - HEIGHT / 3 / 100 * random.randint(0, 100)
-                    # ]
-                    # splash_time = FPS * 5
-                    # Генерируем редкость рыбы [0.001; 100.000]
-                    number = random.randint(1, 100_000) / 1000
-                    now_chance = 0
-                    for rarity in fish_rarity:
-                        if number <= now_chance + rarity['chance']:
-                            # replace_color(splash, splash_color, rarity['color'])
-                            # splash_color = rarity['color']
-                            # Выбираем рыбу
-                            now_rarity = rarity
-                        else:
-                            now_chance += rarity['chance']
-                # if splash_status and not catch_status:
-                #     splash_percent += 0.033
-                #     splash_percent %= 1
-                #     splash_size[0] = 50 + 150 * splash_percent
-                #     splash_size[1] = 20 + 60 * splash_percent
-                #     splash_pos_now[0] = splash_pos[0] - 150 // 2 * splash_percent
-                #     splash_pos_now[1] = splash_pos[1] - 60 // 2 * splash_percent
-                #     SCREEN.blit(pygame.transform.scale(splash, splash_size), splash_pos_now)
-                #     splash_time -= 1
-                #     if splash_time == 0:
-                #         splash_status = False
-
                 # Если удочку забросили и ловят рыбу
                 if fishing_status:
                     # Отрисовываем поплавок
                     bobber.update()
                     bobber.draw(SCREEN)
-
-                    # # Если поплавок там где клюёт
-                    # if splash_status:
-                    #     bobber_rect = pygame.rect.Rect(bobber.x, bobber.y, bobber.size, bobber.size)
-                    #     splash_rect = pygame.rect.Rect(*splash_pos_now, *splash_size)
-                    #     # Можно подсекать на ПКМ
-                    #     if bobber_rect.colliderect(splash_rect):
-                    #         can_catch = True
-                    #     else:
-                    #         can_catch = False
+                    
+                    # Шанс поклёвки
+                    if fps_counter % FPS == 0:
+                        # Если рыба клюёт
+                        if random.randint(1, 100) <= 10 and not catch_status:
+                            # Выбираем редкость рыбы
+                            number = random.randint(1, 100_000) / 1000
+                            now_chance = 0
+                            for rarity in fish_rarity:
+                                if number <= now_chance + rarity['chance']:
+                                    now_rarity = rarity
+                                else:
+                                    now_chance += rarity['chance']
+                            # Подсекаем
+                            hooking_status = True
+                            message = send_message('Жми ЛКМ: клюёт', MYFONT)
 
                 # Отрисовываем удочку
                 rod.draw(SCREEN)
@@ -233,7 +199,7 @@ def main(user_data):
                 SCREEN.blit(score_label, (50, 52))
                 
                 # Забрасывание удочки
-                if pressed_buttons[2]:
+                if pressed_buttons[2] and not hooking_status:
                     if not throwing_status:
                         throwing_status = True
                         percent = 0
@@ -301,7 +267,6 @@ def main(user_data):
                             del fishing_bar
                             del game
                             catch_status = False
-                            splash_status = False
                             fishing_status = False
                             throwing_status = False
                             can_catch = False
@@ -315,7 +280,6 @@ def main(user_data):
                     if result == False:
                         # Рыба сорвалась
                         catch_status = False
-                        splash_status = False
                         fishing_status = False
                         throwing_status = False
                         can_catch = False
@@ -347,21 +311,23 @@ def main(user_data):
                                 if level.open:
                                     if level.point.collidepoint(pygame.mouse.get_pos()):
                                         current_level = level
+            
+            # Подсекание рыбы
+            if hooking_status:
+                # Не успели подсечь
+                if result := hooking.update() == False:
+                    # Сорвалась
+                    hooking_status = False
+                    hooking = Hooking()
+                else:
+                    hooking.draw()
+            
             # Вывод сообщений
             try:
                 message_frame = next(message)
                 SCREEN.blit(message_frame, (SCREEN.width // 2 - message_frame.get_width() // 2, SCREEN.height * 0.8))
             except:
                 pass
-            
-            # x0 = WIDTH / 2
-            # y0 = HEIGHT - 150
-            # a = WIDTH / 2
-            # b = HEIGHT / 3
-            # for angle in range(-180, 0, 1):
-            #     x = x0 + a * math.cos(math.radians(angle))
-            #     y = y0 + b * math.sin(math.radians(angle))
-            #     pygame.draw.rect(SCREEN, (255, 255, 255), (x, y, 2, 2), 2)
 
             # Обновление экрана
             # pixelation(SCREEN, 3)
