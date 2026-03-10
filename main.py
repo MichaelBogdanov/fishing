@@ -177,15 +177,14 @@ def main(user_data):
                         # Если рыба клюёт
                         if random.randint(1, 100) <= 10 and not catch_status:
                             # Выбираем редкость рыбы
-                            number = random.randint(1, 100_000) / 1000
-                            now_chance = 0
-                            for rarity in fish_rarity:
-                                if number <= now_chance + rarity['chance']:
+                            number = random.randint(1, 100_000) / 1_000
+                            for rarity in fish_rarity[::-1]:
+                                if number <= rarity['chance']:
                                     now_rarity = rarity
-                                else:
-                                    now_chance += rarity['chance']
+                                    break
                             # Подсекаем
                             hooking_status = True
+                            hooking = Hooking()
                             message = send_message('Жми ЛКМ: клюёт', MYFONT)
 
                 # Отрисовываем удочку
