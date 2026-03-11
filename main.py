@@ -13,12 +13,12 @@ os.chdir(os.path.dirname(__file__))
 load_dotenv('.env')
 
 from config import SCREEN, WIDTH, HEIGHT, FPS, MINIGAME_DT, MYFONT
-from graphics import *
-from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
-from hooking import Hooking
 from inventory import Inventory
+from hooking import Hooking
+from qte import Minigame, MinigameBar
+from graphics import *
 
 
 # Основная функция игры
@@ -90,6 +90,8 @@ def main(user_data):
     score_label = MYFONT.render(f"Score: {score}", 1, (255, 255, 255))
     # Инвентарь
     inventory = Inventory()
+    for elem in [*fish[0], *fish[1], *fish[2]]:
+        inventory.add_item(elem)
 
     try:
         # Игровой цикл
@@ -120,6 +122,7 @@ def main(user_data):
                 # Обработка игровых событий
                 for event in events:
                     match event.type:
+                        # Нажатие клавиш на клавиатуре
                         case pygame.KEYDOWN:
                             if event.key == pygame.K_ESCAPE:
                                 current_level = None
@@ -148,9 +151,9 @@ def main(user_data):
                         # Прокрутка меню
                         case pygame.MOUSEWHEEL:
                             if event.y > 0:
-                                inventory.shift_x += inventory.speed * 3
+                                inventory.shift_x = min(inventory.shift_x + inventory.speed * 3, 0)
                             elif event.y < 0:
-                                inventory.shift_x -= inventory.speed * 3
+                                inventory.shift_x = max(inventory.shift_x - inventory.speed * 3, -inventory.inventory_length + inventory.width)
 
                 # Обработка мышки
                 if not catch_status:
