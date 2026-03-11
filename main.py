@@ -46,7 +46,6 @@ def main(user_data):
     
     # Загрузка рыб
     from fish import fish, fish_rarity
-    now_rarity = fish_rarity[-1]
     
     # Загрузка музыки
     from music import levels_music, playlist
@@ -179,8 +178,10 @@ def main(user_data):
                         if random.randint(1, 100) <= 10 and not catch_status:
                             # Выбираем редкость рыбы
                             number = random.randint(1, 100_000) / 1_000
+                            chance = 0
                             for rarity in fish_rarity:
-                                if number <= rarity['chance']:
+                                chance += rarity['chance']
+                                if number <= chance:
                                     print(f'Выпало: {number} - рыба {rarity["name"]}')
                                     now_rarity = rarity
                                     break
@@ -235,6 +236,7 @@ def main(user_data):
                     bobber.y = y0 + b * math.sin(math.radians(rod.angle - 90))
                     bobber.size = 30 - 15 * (percent / 100) + 10 * (abs(rod.angle) / 45)
                     
+                    fps_counter = 0
                     fishing_status = True
                 
                 # Мини-игра
