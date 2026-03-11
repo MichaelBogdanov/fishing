@@ -14,7 +14,7 @@ class Fish:
 
 # Загрузка редкостей рыб
 try:
-    fish_rarity = get_fish_rarities_from_server()
+    fish_rarity = sorted(get_fish_rarities_from_server(), key=lambda x: x['chance'])
     print("Загружены редкости рыб с сервера")
 except:
     print("Не удалось загрузить редкости рыб с сервера...")
@@ -42,9 +42,8 @@ fish = [
     [
         Fish(fish_rarity[4], 'Сом', pygame.image.load('images/fish/4channel_catfish.png').convert_alpha()),
         Fish(fish_rarity[4], 'Плоскоголовый сом', pygame.image.load('images/fish/4flathead_catfish.png').convert_alpha())
-    ], 
+    ],
     [
         Fish(fish_rarity[5], 'Щука', pygame.image.load('images/fish/5muskie.png').convert_alpha())
-    ]       
+    ]
 ]
-    

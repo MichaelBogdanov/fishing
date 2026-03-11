@@ -17,8 +17,8 @@ from graphics import *
 from qte import Minigame, MinigameBar
 from server import auth_menu, update_server_score
 from messages import send_message
-from fish import fish, fish_rarity
 from hooking import Hooking
+from inventory import Inventory
 
 
 # Основная функция игры
@@ -44,6 +44,10 @@ def main(user_data):
     # Загрузка уровней
     from levels import levels, current_level
     
+    # Загрузка рыб
+    from fish import fish, fish_rarity
+    now_rarity = fish_rarity[-1]
+    
     # Загрузка музыки
     from music import levels_music, playlist
     song = random.choice(levels_music[current_level])
@@ -61,14 +65,12 @@ def main(user_data):
     # Подсечка
     hooking_status = False
     hooking = Hooking()
-    # Можно ли поймать
-    can_catch = False
     # Ловля
     catch_status = False
     # Анимация ловли
     catch_animation_status = False
     
-    # Загрузка удочки
+    # Удочка
     from rod import Rod
     rod = Rod('images/rod.png', 20, 1.5)
     
@@ -77,7 +79,7 @@ def main(user_data):
     bobber = Bobber(rod)
 
     # Интерфейс
-    # Приманка (очки здоровья)
+    # Приманка
     bait = pygame.image.load('images/worm.png').convert_alpha()
     bait = pygame.transform.scale(bait, (64, 64))
     bait_count = 5
@@ -86,6 +88,8 @@ def main(user_data):
     # Очки
     pygame.font.init()
     score_label = MYFONT.render(f"Score: {score}", 1, (255, 255, 255))
+    # Инвентарь
+    inventory = Inventory()
 
     try:
         # Игровой цикл
@@ -130,7 +134,7 @@ def main(user_data):
                                     # Начинаем мини-игру
                                     catch_status = True
                                     # Создаём игру
-                                    difficult = fish_rarity.index(now_rarity)
+                                    difficult = fish_rarity[::-1].index(now_rarity)
                                     fishing_bar = MinigameBar(SCREEN, difficult)
                                     game = Minigame(SCREEN, fishing_bar, difficult)
                                 # Мини-игра
@@ -138,21 +142,15 @@ def main(user_data):
                                     # Промах в мини-игре
                                     if not catch_animation_status:
                                         bait_now -= not game.click()
-                                    # Победа в мини-игре
+                                    # Сброс анимации
                                     else:
-                                        # Рыба добавлена в инвентарь
-                                        catch_status = False
-                                        fishing_status = False
-                                        throwing_status = False
-                                        can_catch = False
-                                        message = None
-                                        # Добавляем очки за рыбу
-                                        score += now_rarity['score']
-                                        score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
-                                        # Обновляем счет на сервере при изменении
-                                        user_data['score'] = score
-                                        update_server_score(user_data['username'], score)
-                                        catch_animation_status = False
+                                        catch_animation_percent = 120.00
+                        # Прокрутка меню
+                        case pygame.MOUSEWHEEL:
+                            if event.y > 0:
+                                inventory.shift_x += inventory.speed * 3
+                            elif event.y < 0:
+                                inventory.shift_x -= inventory.speed * 3
 
                 # Обработка мышки
                 if not catch_status:
@@ -178,7 +176,7 @@ def main(user_data):
                         if random.randint(1, 100) <= 10 and not catch_status:
                             # Выбираем редкость рыбы
                             number = random.randint(1, 100_000) / 1_000
-                            for rarity in sorted(fish_rarity, key=lambda x: x['chance']):
+                            for rarity in fish_rarity:
                                 if number <= rarity['chance']:
                                     print(f'Выпало: {number} - рыба {rarity["name"]}')
                                     now_rarity = rarity
@@ -197,6 +195,10 @@ def main(user_data):
                     SCREEN.blit(bait, (bait_positions[i], 50))
                 # Рисуем очки
                 SCREEN.blit(score_label, (50, 52))
+                
+                # Рисуем инвентарь
+                inventory.update(pygame.mouse.get_pos())
+                inventory.draw()
                 
                 # Забрасывание удочки
                 if pressed_buttons[2] and not hooking_status:
@@ -246,7 +248,7 @@ def main(user_data):
                         catch_animation_status = True
                         catch_animation_percent = 0.00
                         # Выбор рыбы
-                        index = fish_rarity.index(now_rarity)
+                        index = fish_rarity[::-1].index(now_rarity)
                         catch_fish = random.choice(fish[index])
                         message = send_message(catch_fish.name, MYFONT, now_rarity['color'], 120)
                     # Анимация ловли
@@ -262,14 +264,15 @@ def main(user_data):
                             image_rect.center = (WIDTH // 2, HEIGHT // 2)
                         SCREEN.blit(image, image_rect)
                         # Конец анимации
-                        if catch_animation_percent == 120.00:
-                            # Рыба добавлена в инвентарь
+                        if catch_animation_percent >= 120.00:
+                            # Добавляем рыбу в инвентарь
+                            inventory.add_item(catch_fish)
+                            # Обновляем состояния
                             del fishing_bar
                             del game
                             catch_status = False
                             fishing_status = False
                             throwing_status = False
-                            can_catch = False
                             # Добавляем очки за рыбу
                             score += now_rarity['score']
                             score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
@@ -282,7 +285,6 @@ def main(user_data):
                         catch_status = False
                         fishing_status = False
                         throwing_status = False
-                        can_catch = False
                     if not catch_animation_status and catch_status:
                         fishing_bar.draw()
             else:
