@@ -15,6 +15,7 @@ class Rod:
         
         self.rect = self.sprite.get_rect()
         self.rect.centerx = WIDTH / 2
+        self.rect.bottom = HEIGHT - 50
 
         # Координаты точки крепления лески
         self.attachment_point = (0, 0)

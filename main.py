@@ -178,8 +178,9 @@ def main(user_data):
                         if random.randint(1, 100) <= 10 and not catch_status:
                             # Выбираем редкость рыбы
                             number = random.randint(1, 100_000) / 1_000
-                            for rarity in fish_rarity[::-1]:
+                            for rarity in sorted(fish_rarity, key=lambda x: x['chance']):
                                 if number <= rarity['chance']:
+                                    print(f'Выпало: {number} - рыба {rarity["name"]}')
                                     now_rarity = rarity
                                     break
                             # Подсекаем
