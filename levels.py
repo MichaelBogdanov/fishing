@@ -1,5 +1,7 @@
 import os
+
 import pygame
+import gif_pygame
 
 from config import WIDTH, HEIGHT, SCREEN
 
@@ -29,19 +31,35 @@ class Level:
                 continue
             full = os.path.join(self.sprites_path, filename)
             try:
-                sprite = pygame.image.load(full)
+                # GIF
+                if filename.lower().endswith('.gif'):
+                    sprite = gif_pygame.load(full)
+                    
+                     # Масштабируем один раз к размеру экрана
+                    if sprite.get_size() != (WIDTH, HEIGHT):
+                        sprite = gif_pygame.transform.scale(sprite, (WIDTH, HEIGHT))
+                    
+                    # Блит на фон
+                    sprite.render(SCREEN)
+                # Статичное изображение
+                else:
+                    sprite = pygame.image.load(full)
+                    
+                    # Сохраняем альфу, если она есть
+                    if sprite.get_alpha() is not None:
+                        sprite = sprite.convert_alpha()
+                    else:
+                        sprite = sprite.convert()
+                    
+                    # Масштабируем один раз к размеру экрана
+                    if sprite.get_size() != (WIDTH, HEIGHT):
+                        sprite = pygame.transform.scale(sprite, (WIDTH, HEIGHT))
+                        
+                    # Блит на фон
+                    self.background.blit(sprite, (0, 0))
+                
             except Exception:
                 continue
-            # Сохраняем альфу, если она есть
-            if sprite.get_alpha() is not None:
-                sprite = sprite.convert_alpha()
-            else:
-                sprite = sprite.convert()
-            # Масштабируем один раз к размеру экрана
-            if sprite.get_size() != (WIDTH, HEIGHT):
-                sprite = pygame.transform.scale(sprite, (WIDTH, HEIGHT))
-            # Блим на фон
-            self.background.blit(sprite, (0, 0))
         
         pier = pygame.image.load(pier_path)
         # Сохраняем альфу, если она есть
@@ -75,7 +93,7 @@ levels = [
     # Уровень 4 - Саванна
     Level(4, 'Саванна', [1470, 450], 150_000, 'images/level1/'),
     # Уровень 5 - Вулкан
-    Level(5, 'Вулкан', [1075, 650], 250_000, 'images/level1/'),
+    Level(5, 'Вулкан', [1075, 650], 250_000, 'images/level5/'),
     # Уровень 6 - Озеро во льдах
     Level(6, 'Озеро во льдах', [125, 715], 500_000, 'images/level1/'),
 ]

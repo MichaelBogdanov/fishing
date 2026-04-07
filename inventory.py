@@ -42,7 +42,7 @@ class Inventory:
             image = pygame.transform.scale(item[0].image, (self.item_width, self.item_width))
             rect = pygame.Rect(self.shift_x + self.item_width * i, 0, self.item_width, self.item_width)
             
-            # Отрисовка прдметов
+            # Отрисовка предметов
             if not item[0] is self.taken:
                 self.surface.blit(image, rect)
             

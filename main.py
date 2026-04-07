@@ -201,8 +201,8 @@ def main(user_data):
                 SCREEN.blit(score_label, (50, 52))
                 
                 # Рисуем инвентарь
-                inventory.update(pygame.mouse.get_pos())
                 inventory.draw()
+                inventory.update(pygame.mouse.get_pos())
                 
                 # Забрасывание удочки
                 if pressed_buttons[2] and not hooking_status:
