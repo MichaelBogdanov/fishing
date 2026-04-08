@@ -26,7 +26,7 @@ class Inventory:
                     self.items[i] = (inv_item, count + 1)
                     break
         
-    def update(self, mouse_pos):
+    def update(self, mouse_pos, current_level):
         # Открытие
         if mouse_pos[1] <= self.height:
             self.shift_y = min(0, self.shift_y + self.speed)
@@ -54,6 +54,13 @@ class Inventory:
         
         # Отрисовка взятого предмета
         if self.taken is not None:
+            # Наведение на воду
+            if current_level.water.get_bounding_rect().collidepoint(mouse_pos):
+                print("Можно отпускать в воду")
+                current_level.highlight_status = True
+            else:
+                current_level.highlight_status = False
+            
             # Отпускание предметов
             if not pygame.mouse.get_pressed()[0]:
                 self.taken = None

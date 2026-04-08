@@ -115,7 +115,6 @@ def main(user_data):
             # Проверяем на уровне ли мы? Или на карте?
             if current_level != None:
                 # Закрашиваем экран
-                current_level.update()
                 current_level.draw()
                 
                 # Обработка игровых событий
@@ -202,7 +201,7 @@ def main(user_data):
                 
                 # Рисуем инвентарь
                 inventory.draw()
-                inventory.update(pygame.mouse.get_pos())
+                inventory.update(pygame.mouse.get_pos(), current_level)
                 
                 # Забрасывание удочки
                 if pressed_buttons[2] and not hooking_status:
