@@ -25,10 +25,19 @@ class Inventory:
                 if inv_item == item:
                     self.items[i] = (inv_item, count + 1)
                     break
-        
+    
+    def del_item(self, item):
+        for i, (inv_item, count) in enumerate(self.items):
+            if inv_item == item:
+                if count > 1:
+                    self.items[i] = (inv_item, count - 1)
+                else:
+                    self.items.pop(i)
+                break
+    
     def update(self, mouse_pos, current_level):
         # Открытие
-        if mouse_pos[1] <= self.height:
+        if mouse_pos[1] <= self.height and current_level is not None:
             self.shift_y = min(0, self.shift_y + self.speed)
         else:
             self.shift_y = max(-self.height, self.shift_y - self.speed)
@@ -56,18 +65,19 @@ class Inventory:
         if self.taken is not None:
             # Наведение на воду
             if current_level.water.get_bounding_rect().collidepoint(mouse_pos):
-                print("Можно отпускать в воду")
                 current_level.highlight_status = True
+                # Отпускание предметов в воду
+                if not pygame.mouse.get_pressed()[0]:
+                    released_item = self.taken
+                    self.taken = None
+                    current_level.highlight_status = False
+                    return released_item
             else:
                 current_level.highlight_status = False
             
-            # Отпускание предметов
-            if not pygame.mouse.get_pressed()[0]:
-                self.taken = None
-            else:
-                preview_image = pygame.transform.scale(self.taken.image, (self.height, self.height))
-                SCREEN.blit(preview_image, mouse_pos)
-        
+            preview_image = pygame.transform.scale(self.taken.image, (self.height, self.height))
+            SCREEN.blit(preview_image, mouse_pos)
+            
         # Обновление длины инвентаря
         self.inventory_length = len(self.items) * self.item_width
         

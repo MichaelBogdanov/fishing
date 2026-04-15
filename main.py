@@ -113,7 +113,7 @@ def main(user_data):
                     sys.exit()
             
             # Проверяем на уровне ли мы? Или на карте?
-            if current_level != None:
+            if current_level is not None:
                 # Закрашиваем экран
                 current_level.draw()
                 
@@ -135,7 +135,7 @@ def main(user_data):
                                     # Начинаем мини-игру
                                     catch_status = True
                                     # Создаём игру
-                                    difficult = fish_rarity[::-1].index(now_rarity)
+                                    difficult = fish_rarity.index(now_rarity)
                                     fishing_bar = MinigameBar(SCREEN, difficult)
                                     game = Minigame(SCREEN, fishing_bar, difficult)
                                 # Мини-игра
@@ -157,7 +157,7 @@ def main(user_data):
                 if not catch_status:
                     pressed_buttons = pygame.mouse.get_pressed()
                 # Управление удочкой с помощью мышки
-                if pressed_buttons[0] and not hooking_status:
+                if pressed_buttons[0] and not hooking_status and not inventory.taken:
                     # Двигаем удочку
                     mouse_x = pygame.mouse.get_pos()[0]
                     # Вычисляем отклонение позиции мышки от центра экрана по X
@@ -198,10 +198,6 @@ def main(user_data):
                     SCREEN.blit(bait, (bait_positions[i], 50))
                 # Рисуем очки
                 SCREEN.blit(score_label, (50, 52))
-                
-                # Рисуем инвентарь
-                inventory.draw()
-                inventory.update(pygame.mouse.get_pos(), current_level)
                 
                 # Забрасывание удочки
                 if pressed_buttons[2] and not hooking_status:
@@ -252,7 +248,7 @@ def main(user_data):
                         catch_animation_status = True
                         catch_animation_percent = 0.00
                         # Выбор рыбы
-                        index = fish_rarity[::-1].index(now_rarity)
+                        index = fish_rarity.index(now_rarity)
                         catch_fish = random.choice(fish[index])
                         message = send_message(catch_fish.name, MYFONT, now_rarity['color'], 120)
                     # Анимация ловли
@@ -277,12 +273,6 @@ def main(user_data):
                             catch_status = False
                             fishing_status = False
                             throwing_status = False
-                            # Добавляем очки за рыбу
-                            score += now_rarity['score']
-                            score_label = MYFONT.render(f"Score: {score}", 1, now_rarity['color'])
-                            # Обновляем счет на сервере при изменении
-                            user_data['score'] = score
-                            update_server_score(user_data['username'], score)
                             catch_animation_status = False
                     if result == False:
                         # Рыба сорвалась
@@ -334,6 +324,20 @@ def main(user_data):
                 SCREEN.blit(message_frame, (SCREEN.width // 2 - message_frame.get_width() // 2, SCREEN.height * 0.8))
             except:
                 pass
+
+            # Рисуем инвентарь
+            inventory.draw()
+            # Отпускаем рыбу в воду
+            released_fish = inventory.update(pygame.mouse.get_pos(), current_level)
+            if released_fish is not None:
+                # Удаляем рыбу из инвентаря
+                inventory.del_item(released_fish)
+                # Добавляем очки за рыбу
+                score += released_fish.rarity['score']
+                score_label = MYFONT.render(f"Score: {score}", 1, released_fish.rarity['color'])
+                # Обновляем счет на сервере при изменении
+                user_data['score'] = score
+                update_server_score(user_data['username'], score)
 
             # Обновление экрана
             # pixelation(SCREEN, 3)
