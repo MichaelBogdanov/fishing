@@ -63,20 +63,26 @@ class Inventory:
         
         # Отрисовка взятого предмета
         if self.taken is not None:
-            # Наведение на воду
-            if current_level.water.get_bounding_rect().collidepoint(mouse_pos):
-                current_level.highlight_status = True
-                # Отпускание предметов в воду
-                if not pygame.mouse.get_pressed()[0]:
-                    released_item = self.taken
-                    self.taken = None
-                    current_level.highlight_status = False
-                    return released_item
-            else:
-                current_level.highlight_status = False
             
+            # Превью взятого предмета
             preview_image = pygame.transform.scale(self.taken.image, (self.height, self.height))
             SCREEN.blit(preview_image, mouse_pos)
+            
+            # Отпускание предметов в воду
+            if not pygame.mouse.get_pressed()[0]:
+                
+                if current_level.highlight_status:
+                    released_item = self.taken
+                    current_level.highlight_status = False
+                    self.taken = None
+                    return released_item
+                self.taken = None
+            
+            # Подсветка при наведении на воду
+            if current_level.water.get_bounding_rect().collidepoint(mouse_pos):
+                current_level.highlight_status = True
+            else:
+                current_level.highlight_status = False
             
         # Обновление длины инвентаря
         self.inventory_length = len(self.items) * self.item_width
