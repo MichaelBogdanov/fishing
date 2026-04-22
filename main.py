@@ -56,6 +56,7 @@ def main(user_data):
     
     # Загрузка данных пользователя
     score = user_data['score']
+    money = 0
     
     # Закидывание
     throwing_status = False
@@ -68,6 +69,8 @@ def main(user_data):
     catch_status = False
     # Анимация ловли
     catch_animation_status = False
+    # Магазин
+    shop_state = False
     
     # Удочка
     from rod import Rod
@@ -86,10 +89,12 @@ def main(user_data):
     bait_positions = [WIDTH - x - 64 for x in range(64, 64 * bait_count + 1, 64)]
     # Очки
     pygame.font.init()
-    score_label = MYFONT.render(f"Score: {score}", 1, (255, 255, 255))
+    score_label = MYFONT.render(f"Reputation: {score}", 1, (255, 255, 255))
+    # Деньги
+    money_label = MYFONT.render(f"Money: {money}", 1, (255, 255, 255))
     # Инвентарь
     inventory = Inventory()
-    for elem in [*fish[0], *fish[1], *fish[2]]:
+    for elem in [*fish[0], *fish[1], *fish[2], *fish[3], *fish[4], *fish[5]]:
         inventory.add_item(elem)
 
     try:
@@ -112,8 +117,8 @@ def main(user_data):
                     pygame.quit()
                     sys.exit()
             
-            # Проверяем на уровне ли мы? Или на карте?
-            if current_level is not None:
+            # Проверяем на уровне ли мы? В магазине? Или на карте?
+            if current_level is not None and not shop_state:
                 # Закрашиваем экран
                 current_level.draw()
                 
@@ -198,6 +203,8 @@ def main(user_data):
                     SCREEN.blit(bait, (bait_positions[i], 50))
                 # Рисуем очки
                 SCREEN.blit(score_label, (50, 52))
+                # Рисуем деньги
+                SCREEN.blit(money_label, (50, 102))
                 
                 # Забрасывание удочки
                 if pressed_buttons[2] and not hooking_status:
@@ -281,6 +288,33 @@ def main(user_data):
                         throwing_status = False
                     if not catch_animation_status and catch_status:
                         fishing_bar.draw()
+            elif shop_state:
+                # Мы в магазине
+                # Закрашиваем экран
+                current_level.draw()
+                
+                # Обработка игровых событий
+                for event in events:
+                    match event.type:
+                        # Нажатие клавиш на клавиатуре
+                        case pygame.KEYDOWN:
+                            if event.key == pygame.K_ESCAPE:
+                                shop_state = False
+                                current_level = None
+                        # Прокрутка меню
+                        case pygame.MOUSEWHEEL:
+                            if event.y > 0:
+                                inventory.shift_x = min(inventory.shift_x + inventory.speed * 3, 0)
+                            elif event.y < 0:
+                                inventory.shift_x = max(inventory.shift_x - inventory.speed * 3, -inventory.inventory_length + inventory.width)
+
+                # Отрисовка интерфейса
+                # Рисуем деньги
+                SCREEN.blit(money_label, (50, 102))
+                
+                # Рисуем приманку
+                for i in range(bait_now):
+                    SCREEN.blit(bait, (bait_positions[i], 50))
             else:
                 # Мы на карте
                 game_map.render(SCREEN, (0, 0))
@@ -306,6 +340,8 @@ def main(user_data):
                             for level in levels:
                                 if level.open:
                                     if level.point.collidepoint(pygame.mouse.get_pos()):
+                                        if level.number == 0:
+                                            shop_state = True
                                         current_level = level
             
             # Подсекание рыбы
@@ -332,12 +368,16 @@ def main(user_data):
             if released_fish is not None:
                 # Удаляем рыбу из инвентаря
                 inventory.del_item(released_fish)
-                # Добавляем очки за рыбу
-                score += released_fish.rarity['score']
-                score_label = MYFONT.render(f"Score: {score}", 1, released_fish.rarity['color'])
-                # Обновляем счет на сервере при изменении
-                user_data['score'] = score
-                update_server_score(user_data['username'], score)
+                # Добавляем деньги за проданную рыбу
+                if not current_level.number:
+                    money += int(10 + 100 / released_fish.rarity['chance'])
+                    money_label = MYFONT.render(f"Money: {money}", 1, released_fish.rarity['color'])
+                else:
+                    score += released_fish.rarity['score']
+                    score_label = MYFONT.render(f"Reputation: {score}", 1, released_fish.rarity['color'])
+                    # Обновляем счет на сервере при изменении
+                    user_data['score'] = score
+                    update_server_score(user_data['username'], score)
 
             # Обновление экрана
             # pixelation(SCREEN, 3)

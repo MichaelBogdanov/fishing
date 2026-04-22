@@ -90,7 +90,9 @@ class Level:
         else:
             self.highlight.blit(pier, (self.highlight.get_rect().centerx - pier.get_width() / 2, self.highlight.get_height() - pier.get_height()), special_flags=pygame.BLEND_RGBA_SUB)
         
-        self.background.blit(pier, (pier_rect.x, pier_rect.y))
+        # Если это не магазин
+        if number:
+            self.background.blit(pier, (pier_rect.x, pier_rect.y))
 
     def draw(self):
         # Один blit вместо множества
@@ -101,6 +103,8 @@ class Level:
 
 
 levels = [
+    # Магазин
+    Level(0, 'Магазин', [790, 345], 0, 'images/shop/', True),
     # Уровень 1 - Лес
     Level(1, 'Лес', [690, 345], 20_000, 'images/level1/', True),
     # Уровень 2 - Болотистая местность

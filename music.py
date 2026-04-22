@@ -2,11 +2,14 @@
 levels_music = {
     None: [
         'Ripples on the Lake.mp3',
-        'Ripples on the Lake (1).mp3'
+        'Ripples on the Lake (1).mp3',
+    ],
+    0: [
+        'pacification.mp3',
     ],
     1: [
         'pacification.mp3',
-        'good_mood.mp3'
+        'good_mood.mp3',
     ],
     2: ['pacification.mp3',],
     3: ['pacification.mp3',],

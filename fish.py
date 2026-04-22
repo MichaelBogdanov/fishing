@@ -10,12 +10,14 @@ class Fish:
     rarity: float
     name: str
     image: pygame.Surface
+    size: int = 1
 
 
 # Загрузка редкостей рыб
 try:
     fish_rarity = sorted(get_fish_rarities_from_server(), key=lambda x: x['chance'], reverse=True)
     print("Загружены редкости рыб с сервера")
+    print(fish_rarity)
 except:
     print("Не удалось загрузить редкости рыб с сервера...")
     sys.exit()
@@ -36,14 +38,14 @@ fish = [
         Fish(fish_rarity[2], 'Красногрудный солнечник', pygame.image.load('images/fish/2redbreast_sunfish_panfish.png').convert_alpha())
     ],
     [
-        Fish(fish_rarity[3], 'Судак', pygame.image.load('images/fish/3walleye.png').convert_alpha()),
-        Fish(fish_rarity[3], 'Жёлтый судак', pygame.image.load('images/fish/3yellow_perch.png').convert_alpha())
+        Fish(fish_rarity[3], 'Судак', pygame.image.load('images/fish/3walleye.png').convert_alpha(), 2),
+        Fish(fish_rarity[3], 'Жёлтый судак', pygame.image.load('images/fish/3yellow_perch.png').convert_alpha(), 2)
     ],
     [
-        Fish(fish_rarity[4], 'Сом', pygame.image.load('images/fish/4channel_catfish.png').convert_alpha()),
-        Fish(fish_rarity[4], 'Плоскоголовый сом', pygame.image.load('images/fish/4flathead_catfish.png').convert_alpha())
+        Fish(fish_rarity[4], 'Сом', pygame.image.load('images/fish/4channel_catfish.png').convert_alpha(), 2),
+        Fish(fish_rarity[4], 'Плоскоголовый сом', pygame.image.load('images/fish/4flathead_catfish.png').convert_alpha(), 2)
     ],
     [
-        Fish(fish_rarity[5], 'Щука', pygame.image.load('images/fish/5muskie.png').convert_alpha())
+        Fish(fish_rarity[5], 'Щука', pygame.image.load('images/fish/5muskie.png').convert_alpha(), 2)
     ]
 ]
