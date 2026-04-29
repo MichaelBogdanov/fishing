@@ -2,6 +2,7 @@ import os
 import sys
 import math
 import random
+import threading
 
 import pygame
 import gif_pygame
@@ -18,33 +19,28 @@ from messages import send_message
 from inventory import Inventory
 from hooking import Hooking
 from qte import Minigame, MinigameBar
+from animation import CastAnim
 from graphics import *
 
 
-class CastAnim:
-    """Float flies from rod tip to target position."""
-    DURATION = 0.55
+# Декоратор для запуска функции в отдельном потоке
+def run_in_thread(func):
+    """
+    Декоратор для запуска функции в новом потоке.
+    """
+    def wrapper(*args, **kwargs):
+        # Создаем поток, передавая функцию и ее аргументы
+        thread = threading.Thread(target=func, args=args, kwargs=kwargs)
+        # Запускаем поток
+        thread.start()
+        return thread # Возвращаем объект потока, если нужно присоединиться (.join())
+    return wrapper
 
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
-        self.t = 0.0
-        self.done = False
-
-    def update(self, dt):
-        self.t += dt / self.DURATION
-        if self.t >= 1.0:
-            self.t = 1.0
-            self.done = True
-
-    def pos(self):
-        s = self.t
-        # Arc: parabola up then down
-        x = self.start[0] + (self.end[0] - self.start[0]) * s
-        arc_h = -120 * s * (1 - s) * 4
-        y = self.start[1] + (self.end[1] - self.start[1]) * s + arc_h
-        return (x, y)
-
+# Функия воспроизведения звуков
+def play_sound(path):
+    sound = pygame.mixer.Sound(path)
+    sound.set_volume(1)
+    sound.play()
 
 # Основная функция игры
 def main(user_data):
@@ -52,7 +48,7 @@ def main(user_data):
     pygame.init()
     # Инициализация микшера для звуков
     pygame.mixer.init()
-    pygame.mixer.music.set_volume(0.5)
+    pygame.mixer.music.set_volume(0.25)
 
     # Загрузка параметров игры
     accumulator = 0.0
@@ -90,7 +86,6 @@ def main(user_data):
     fishing_status = False
     # Подсечка
     hooking_status = False
-    hooking_result = 0
     hooking = Hooking()
     # Ловля
     catch_status = False
@@ -201,6 +196,7 @@ def main(user_data):
                     cast_anim.update(frame_dt)
                     bobber.x, bobber.y = cast_anim.pos()
                     if cast_anim.done:
+                        play_sound('sound/splash.mp3')
                         fishing_status = True
                         cast_anim = None
                     bobber.update()
