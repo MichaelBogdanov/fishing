@@ -2,6 +2,19 @@ import pygame
 from config import WIDTH, HEIGHT, FPS
 
 
+def draw_sagging_line(surf, rod_tip, float_pos):
+    mid = ((rod_tip[0] + float_pos[0]) // 2,
+           (rod_tip[1] + float_pos[1]) // 2 + 20)
+    points = []
+    for t in range(21):
+        s = t / 20
+        x = (1 - s)**2 * rod_tip[0] + 2 * (1 - s) * s * mid[0] + s**2 * float_pos[0]
+        y = (1 - s)**2 * rod_tip[1] + 2 * (1 - s) * s * mid[1] + s**2 * float_pos[1]
+        points.append((int(x), int(y)))
+    if len(points) >= 2:
+        pygame.draw.lines(surf, (255, 255, 255), False, points, 2)
+
+
 class Bobber:
     def __init__(self, rod):
         self.rod = rod
@@ -23,22 +36,7 @@ class Bobber:
         
         self.weight = 8 * 10 ** -3
     
-    def pull_up(self,):
-        # self.distance = max(0, self.distance - self.range / (self.range / self.rod.speed * 10))
-        # self.y = HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance
-        ...
-    
     def update(self):
-        # Подтягивает если закинули слишком далеко
-        # if abs(self.rod.x - (self.x + 50)) >= 300:
-        #     self.x += self.rod.speed * (-1 + 2 * (self.rod.x > self.x))
-        # # Поплавок падает вниз
-        # if self.y < HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance:
-        #     self.speedup *= 1.05
-        #     self.y += self.speedup
-        #     self.y = min(self.y, HEIGHT * 0.75 - HEIGHT / 3 / 100 * self.distance)
-        # Меняем размер в зависимости от дистанции
-        # self.size = 100 - self.distance * 2.5
         # Скалируем спрайты
         self.scaled_sprites = list(map(lambda x: pygame.transform.scale(x, (self.size, self.size)), self.sprites))
             
@@ -47,13 +45,8 @@ class Bobber:
         screen.blit(self.scaled_sprites[int(self.counter)], (self.x, self.y))
         
         # Отрисовываем леску
-        pygame.draw.line(
-            screen,
-            (255, 255, 255),
-            (self.x + self.size * 0.5, self.y + self.size * 0.4 - self.size * 0.1 * int(self.counter)),
-            self.rod.attachment_point,
-            2
-        )
+        float_pos = (self.x + self.size * 0.5, self.y + self.size * 0.4 - self.size * 0.1 * int(self.counter))
+        draw_sagging_line(screen, self.rod.attachment_point, float_pos)
         
         # Увеличиваем счётчик
         self.counter += 1 / FPS

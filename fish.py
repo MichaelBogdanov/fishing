@@ -17,7 +17,6 @@ class Fish:
 try:
     fish_rarity = sorted(get_fish_rarities_from_server(), key=lambda x: x['chance'], reverse=True)
     print("Загружены редкости рыб с сервера")
-    print(fish_rarity)
 except:
     print("Не удалось загрузить редкости рыб с сервера...")
     sys.exit()

@@ -21,6 +21,31 @@ from qte import Minigame, MinigameBar
 from graphics import *
 
 
+class CastAnim:
+    """Float flies from rod tip to target position."""
+    DURATION = 0.55
+
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+        self.t = 0.0
+        self.done = False
+
+    def update(self, dt):
+        self.t += dt / self.DURATION
+        if self.t >= 1.0:
+            self.t = 1.0
+            self.done = True
+
+    def pos(self):
+        s = self.t
+        # Arc: parabola up then down
+        x = self.start[0] + (self.end[0] - self.start[0]) * s
+        arc_h = -120 * s * (1 - s) * 4
+        y = self.start[1] + (self.end[1] - self.start[1]) * s + arc_h
+        return (x, y)
+
+
 # Основная функция игры
 def main(user_data):
     # Инициализация pygame
@@ -60,6 +85,7 @@ def main(user_data):
     
     # Закидывание
     throwing_status = False
+    cast_anim = None
     # Рыбалка
     fishing_status = False
     # Подсечка
@@ -170,6 +196,16 @@ def main(user_data):
                     # Задаём скорость движения в зависимости от отклонение
                     rod.update(yaw)
 
+                # Обновление анимации броска
+                if cast_anim:
+                    cast_anim.update(frame_dt)
+                    bobber.x, bobber.y = cast_anim.pos()
+                    if cast_anim.done:
+                        fishing_status = True
+                        cast_anim = None
+                    bobber.update()
+                    bobber.draw(SCREEN)
+
                 # Если удочку забросили и ловят рыбу
                 if fishing_status:
                     # Отрисовываем поплавок
@@ -234,12 +270,14 @@ def main(user_data):
                     y0 = HEIGHT - 150
                     a = WIDTH / (2 * (2 - percent / 100))
                     b = HEIGHT / (3 * (2 - percent / 100))
-                    bobber.x = x0 + a * math.cos(math.radians(rod.angle + 90))
-                    bobber.y = y0 + b * math.sin(math.radians(rod.angle - 90))
+                    end_x = x0 + a * math.cos(math.radians(rod.angle + 90))
+                    end_y = y0 + b * math.sin(math.radians(rod.angle - 90))
                     bobber.size = 30 - 15 * (percent / 100) + 10 * (abs(rod.angle) / 45)
+                    bobber.update()
                     
+                    start_pos = (rod.attachment_point[0], rod.attachment_point[1] - 30)
+                    cast_anim = CastAnim(start_pos, (end_x, end_y))
                     fps_counter = 0
-                    fishing_status = True
                 
                 # Мини-игра
                 if catch_status:
