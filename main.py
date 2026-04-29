@@ -90,6 +90,7 @@ def main(user_data):
     fishing_status = False
     # Подсечка
     hooking_status = False
+    hooking_result = 0
     hooking = Hooking()
     # Ловля
     catch_status = False
@@ -161,13 +162,12 @@ def main(user_data):
                             if event.button == 1:
                                 # Подсечка рыбы
                                 if hooking_status:
-                                    _ = hooking.click()
                                     hooking_status = False
                                     # Начинаем мини-игру
                                     catch_status = True
                                     # Создаём игру
                                     difficult = fish_rarity.index(now_rarity)
-                                    fishing_bar = MinigameBar(SCREEN, difficult)
+                                    fishing_bar = MinigameBar(SCREEN, difficult, extra_points=hooking.click())
                                     game = Minigame(SCREEN, fishing_bar, difficult)
                                 # Мини-игра
                                 if catch_status:

@@ -100,7 +100,7 @@ class Minigame:
                 self.screen.blit(surf, (screen.get_width() // 2 - surf.get_width() // 2, screen.get_height() // 2 - surf.get_height() // 2 + i * 36))
 
 class MinigameBar:
-    def __init__(self, screen, difficult=0):
+    def __init__(self, screen, difficult=0, extra_points=0):
         self.screen = screen
         self.difficult = difficult
         
@@ -111,7 +111,7 @@ class MinigameBar:
         self.rect_x = 50
         self.rect = pygame.Rect(self.rect_x, self.rect_y, self.width, self.height)
         
-        self.value_percent = 30
+        self.value_percent = 20 + 40 * extra_points / 100
 
     def success(self, value=30):
         self.value_percent += value - (10 + self.difficult)
@@ -135,7 +135,7 @@ class MinigameBar:
 
 def main():
     global accumulator
-    bar = MinigameBar(screen, difficult=5)
+    bar = MinigameBar(screen, difficult=5, extra_points=100)
     game = Minigame(screen, bar, difficult=5)
 
     while True:
