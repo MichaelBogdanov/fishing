@@ -157,6 +157,7 @@ def main(user_data):
                             if event.button == 1:
                                 # Подсечка рыбы
                                 if hooking_status:
+                                    play_sound('sound/hooking.mp3')
                                     hooking_status = False
                                     # Начинаем мини-игру
                                     catch_status = True
