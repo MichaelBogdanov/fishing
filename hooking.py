@@ -6,35 +6,38 @@ from random import randint
 
 from config import WIDTH, HEIGHT, SCREEN, FPS, MYFONT
 from messages import send_message
+from rod import Rod
 
 
 HOOKING_RADIUS = HEIGHT // 10 // 2
 
 
 def color_generator(step):
-    for i in range(0, 256, step):
+    for i in range(0, 256, int(step)):
         yield (i, 255, 0)
-    for i in range(1, 256, step):
-        yield (255, 255 - i, 0)
+    for i in range(1, 256, int(step)):
+        yield (255, int(255 - i), 0)
 
 
 class Hooking:
-    def __init__(self):
+    def __init__(self, rod):
         self.radius = HOOKING_RADIUS
         self.x = randint(self.radius, WIDTH - self.radius)
         self.y = randint(self.radius, HEIGHT - self.radius)
         
         self.surface = pygame.Surface((self.radius * 2, self.radius * 2), pygame.SRCALPHA)
         
-        self.sight_step = ceil((255 + 254) // HOOKING_RADIUS)
+        self.sight_step = ((255 * 2.5) * (1 - 0.2 * rod.quality)) / HOOKING_RADIUS
         self.sight_radius = 0
         self.sight_color = iter(color_generator(self.sight_step))
+        
+        self.rod = rod
     
     def click(self):
         return 100 - int(self.sight_radius / self.radius * 100)
     
     def update(self):
-        self.sight_radius += 1
+        self.sight_radius += 1 - 0.25 * self.rod.quality
         if self.sight_radius >= self.radius:
             return False
         
@@ -44,7 +47,7 @@ class Hooking:
         try:
             color = next(self.sight_color)
         except:
-            color = (255, 255, 255)
+            color = (255, 0, 0)
         pygame.draw.circle(SCREEN, color, (self.x, self.y), self.sight_radius, 5)
 
 
@@ -53,7 +56,8 @@ if __name__ == "__main__":
     
     clock = pygame.time.Clock()
     
-    hooking = Hooking()
+    rod = Rod('images/rod.png', 20, 1.5, 3)
+    hooking = Hooking(rod)
     message = None
     delay = FPS
     
@@ -73,14 +77,15 @@ if __name__ == "__main__":
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and not delay:
                     message = send_message(str(hooking.click()), MYFONT, (255, 255, 255))
-                    hooking = Hooking()
+                    hooking = Hooking(rod)
                     delay = FPS + randint(0, FPS)
         
         if not delay:
             if result := hooking.update() == False:
-                hooking = Hooking()
+                hooking = Hooking(rod)
                 delay = FPS + randint(0, FPS)
-            hooking.draw()
+            else:
+                hooking.draw()
         
         try:
             message_frame = next(message)

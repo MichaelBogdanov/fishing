@@ -6,7 +6,7 @@ from config import WIDTH, HEIGHT
 
 
 class Rod:
-    def __init__(self, path, speed, length):
+    def __init__(self, path, speed, length, quality=0):
         self.original_sprite = pygame.transform.scale(
             pygame.image.load(path).convert_alpha(),
             (60, 300)
@@ -24,6 +24,8 @@ class Rod:
         self.speed = speed
         
         self.length = length
+        
+        self.quality = quality
 
     def get_attachment_point(self):
         for y in range(self.sprite.get_height()):

@@ -86,7 +86,6 @@ def main(user_data):
     fishing_status = False
     # Подсечка
     hooking_status = False
-    hooking = Hooking()
     # Ловля
     catch_status = False
     # Анимация ловли
@@ -96,7 +95,15 @@ def main(user_data):
     
     # Удочка
     from rod import Rod
-    rod = Rod('images/rod.png', 20, 1.5)
+    rods = [
+        Rod('images/rod.png', 20, 1.5),
+        Rod('images/rod1.png', 20, 1.5, 1),
+        Rod('images/rod2.png', 20, 1.5, 2),
+        Rod('images/rod3.png', 20, 1.5, 3),
+    ]
+    rod = rods[0]
+    
+    hooking = Hooking(rod)
     
     # Поплавок
     from bobber import Bobber
@@ -224,7 +231,7 @@ def main(user_data):
                                     break
                             # Подсекаем
                             hooking_status = True
-                            hooking = Hooking()
+                            hooking = Hooking(rod)
                             message = send_message('Жми ЛКМ: клюёт', MYFONT)
 
                 # Отрисовываем удочку
@@ -328,6 +335,10 @@ def main(user_data):
                 # Закрашиваем экран
                 current_level.draw()
                 
+                # Отрисовка товаров
+                goods = []
+                for i, j in enumerate(rods):
+                    goods.append([i, SCREEN.blit(j.original_sprite, (WIDTH // 1.5 + i * 150, HEIGHT // 2))])
                 # Обработка игровых событий
                 for event in events:
                     match event.type:
@@ -342,7 +353,15 @@ def main(user_data):
                                 inventory.shift_x = min(inventory.shift_x + inventory.speed * 3, 0)
                             elif event.y < 0:
                                 inventory.shift_x = max(inventory.shift_x - inventory.speed * 3, -inventory.inventory_length + inventory.width)
-
+                        # Покупка предметов
+                        case pygame.MOUSEBUTTONDOWN:
+                            for good in goods:
+                                if good[1].collidepoint(pygame.mouse.get_pos()):
+                                    rod = rods[good[0]]
+                                    bobber = Bobber(rod)
+                                    hooking = Hooking(rod)
+                                    print(f"Куплена новая удочка {good[0]}")
+                
                 # Отрисовка интерфейса
                 # Рисуем деньги
                 SCREEN.blit(money_label, (50, 102))
@@ -385,7 +404,7 @@ def main(user_data):
                 if result := hooking.update() == False:
                     # Сорвалась
                     hooking_status = False
-                    hooking = Hooking()
+                    hooking = Hooking(rod)
                 else:
                     hooking.draw()
             
